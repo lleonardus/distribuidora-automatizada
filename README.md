@@ -3,12 +3,12 @@
 1. Top 5 produtos mais vendidos no mês
 
 ```sql
-SELECT pr.nome_produto, pe.data_pedido, SUM(i.quantidade) AS total_vendido
-    FROM produtos pr
-    JOIN itens_pedido i ON pr.id=i.produto_id
-    JOIN pedidos pe ON i.pedido_id=pe.id
-    WHERE strftime('%m', pe.data_pedido) = strftime('%m', date())
-    GROUP BY pr.nome_produto
+SELECT pr.nome_produto, SUM(i.quantidade) as total_vendido
+  FROM produtos pr
+  JOIN itens_pedido i ON pr.id=i.produto_id
+  JOIN pedidos pe on i.pedido_id=pe.id
+  WHERE strftime('%m', pe.data_pedido) = strftime('%m', date())
+  GROUP BY pr.nome_produto
 ORDER BY total_vendido DESC, pr.nome_produto ASC LIMIT(5);
 ```
 
