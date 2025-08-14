@@ -16,12 +16,11 @@ try:
     # ---------- CLIENTS ----------
 
     clients = []
-    states = ["Rio de Janeiro", "Espírito Santo"]
 
     for _ in range(50):
         name = fake.name()
         city = fake.city()
-        state = random.choice(states)
+        state = fake.state()
         phone = fake.phone_number()
         clients.append((name, city, state, phone))
 
