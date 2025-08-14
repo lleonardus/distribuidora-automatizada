@@ -1,7 +1,13 @@
+import os
+from dotenv import load_dotenv
 import sqlite3 as connector
 from faker import Faker
 import random
 from datetime import datetime, timedelta
+
+load_dotenv()
+
+DATABASE = os.getenv("DATABASE") or "distribuidora.db"
 
 fake = Faker(locale="pt_BR")
 
@@ -9,7 +15,7 @@ connection = None
 cursor = None
 
 try:
-    connection = connector.connect("distribuidora.db")
+    connection = connector.connect(DATABASE)
     connection.execute("PRAGMA foreign_keys = on")
     cursor = connection.cursor()
 

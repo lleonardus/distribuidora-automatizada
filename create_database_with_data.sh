@@ -2,6 +2,8 @@
 
 source "$(dirname "$0")/.venv/bin/activate"
 
+echo -e 'DATABASE=distribuidora\nREPORT_PATH=relatorio.xlsx' > .env
+
 python3 create_tables.py
 
 sleep 1

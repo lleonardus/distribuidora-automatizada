@@ -1,13 +1,18 @@
+import os
+from dotenv import load_dotenv
 import sqlite3 as connector
 import pandas as pd
+
+load_dotenv()
+
+DATABASE = os.getenv("DATABASE") or "distribuidora.db"
+REPORT_PATH = os.getenv("REPORT_PATH") or "relatorio.xlsx"
 
 connection = None
 cursor = None
 
-PLANILHA = "planilha.xlsx"
-
 try:
-    connection = connector.connect("distribuidora.db")
+    connection = connector.connect(DATABASE)
     cursor = connection.cursor()
 
     top5_month_products = cursor.execute(
@@ -82,7 +87,7 @@ try:
         ),
     }
 
-    with pd.ExcelWriter(PLANILHA) as writer:
+    with pd.ExcelWriter(REPORT_PATH) as writer:
         for sheet_name, df in data_frames.items():
             df.to_excel(excel_writer=writer, sheet_name=sheet_name, index=False)
 

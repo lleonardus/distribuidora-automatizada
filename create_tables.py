@@ -1,10 +1,16 @@
+import os
+from dotenv import load_dotenv
 import sqlite3 as connector
+
+load_dotenv()
+
+DATABASE = os.getenv("DATABASE") or "distribuidora.db"
 
 connection = None
 cursor = None
 
 try:
-    connection = connector.connect("distribuidora.db")
+    connection = connector.connect(DATABASE)
     cursor = connection.cursor()
 
     cursor.execute(

@@ -68,7 +68,11 @@ $ python3 -m venv .venv
 $ source .venv/bin/activate
 $ python3 -m pip install -r requirements.txt
 
-# Criando as tabelas e inserindo dados fictícios
+# Definindo as variáveis de ambiente DATABASE e REPORT_PATH
+$ echo -e 'DATABASE=distribuidora.db\nREPORT_PATH=relatorio.xlsx' > .env
+
+# Criando as tabelas e inserindo dados fictícios.
+# Se as tabelas já existirem e estiverem com dados, não precisa seguir esse passo
 $ python3 create_tables.py
 $ python3 insert_data.py
 
@@ -82,4 +86,5 @@ $ python3 generate_report.py
 - [pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 - [Python](https://www.python.org/downloads/)
 - [sqlite3](https://docs.python.org/3/library/sqlite3.html#module-sqlite3)
+- [python-dotenv](https://pypi.org/project/python-dotenv/)
 - [Faker](https://pypi.org/project/Faker/)
