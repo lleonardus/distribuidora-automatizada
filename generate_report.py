@@ -56,28 +56,28 @@ try:
     data_frames = {
         "Top 5 Produtos do Mês": pd.DataFrame(
             {
-                "nome_produto": [row[0] for row in top5_month_products],
-                "total_vendido": [row[1] for row in top5_month_products],
+                "Produto": [row[0] for row in top5_month_products],
+                "Total Vendido": [row[1] for row in top5_month_products],
             }
         ),
         "Top Clientes": pd.DataFrame(
             {
-                "nome_cliente": [row[0] for row in top_clients],
-                "total_gasto": [row[1] for row in top_clients],
+                "Cliente": [row[0] for row in top_clients],
+                "Total Gasto": [row[1] for row in top_clients],
             }
         ),
         "Entregas Atrasadas": pd.DataFrame(
             {
-                "entrega_id": [row[0] for row in late_deliveries],
-                "nome_cliente": [row[1] for row in late_deliveries],
-                "data_prevista": [row[2] for row in late_deliveries],
-                "data_entrega": [row[3] for row in late_deliveries],
+                "Entrega Id": [row[0] for row in late_deliveries],
+                "Cliente": [row[1] for row in late_deliveries],
+                "Data Prevista": [row[2] for row in late_deliveries],
+                "Data de Entrega": [row[3] for row in late_deliveries],
             }
         ),
         "Faturamento por Estado": pd.DataFrame(
             {
-                "estado": [row[0] for row in billing_by_state],
-                "faturamento": [row[1] for row in billing_by_state],
+                "Estado": [row[0] for row in billing_by_state],
+                "Faturamento": [row[1] for row in billing_by_state],
             }
         ),
     }
