@@ -1,8 +1,24 @@
 # 🚚 Distribuidora Automatizada
 
+Empresas que atuam no ramo da logística geram grandes volumes de dados diariamente
+e precisam analisá-los para tomar as melhores decisões mercadológicas. O problema
+é que não dá para simplesmente inserir todo esse volume de dados no Excel, pois
+isso poderia causar travamentos e até possíveis perdas de informações.
+
+Pensando nisso, desenvolvi este projeto para simular o fluxo de compras de clientes
+em uma distribuidora e realizar consultas em SQL, gerando um relatório contendo
+apenas informações relevantes para posterior análise de dados.
+
+![Exemplo de Output do Relatório](./docs/images/excel-output.png)
+
 ## 💾 Banco de Dados
 
 ![Modelo Entidade Relacionamento para o Banco](./docs/images/database.png)
+
+Como o projeto é para fins didáticos, optei por utilizar o [sqlite](https://sqlite.org/)
+como banco de dados pois o Python já vem com o driver [sqlite3](https://docs.python.org/3/library/sqlite3.html#module-sqlite3).
+Essa escolha também auxilia na hora de rodar o projeto, já que elimina a
+necessidade de instalar um SGBD.
 
 ### 📒 Consultas
 
