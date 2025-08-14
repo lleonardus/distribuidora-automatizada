@@ -31,12 +31,12 @@ ORDER BY total_gasto DESC, c.nome_cliente ASC;
 #### 🔎 Entregas Atrasadas
 
 ```sql
-SELECT e.id, c.nome_cliente, e.data_prevista, e.data_entrega
-    FROM entregas e
-    JOIN pedidos pe ON pe.id = e.pedido_id
-    JOIN clientes c ON c.id = pe.cliente_id
-    WHERE data_entrega > data_prevista
-ORDER BY data_entrega DESC;
+SELECT e.id, c.nome_cliente, e.data_prevista, e.data_entrega, (julianday(e.data_entrega) - julianday(e.data_prevista)) AS dias_de_atraso
+  FROM entregas e
+  JOIN pedidos pe ON  pe.id = e.pedido_id
+  JOIN clientes c ON  c.id = pe.cliente_id
+  WHERE data_entrega > data_prevista
+ORDER BY dias_de_atraso DESC, c.nome_cliente ASC;
 
 ```
 

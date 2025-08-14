@@ -39,12 +39,12 @@ try:
 
     late_deliveries = cursor.execute(
         """
-    SELECT e.id, c.nome_cliente, e.data_prevista, e.data_entrega
+    SELECT e.id, c.nome_cliente, e.data_prevista, e.data_entrega, (julianday(e.data_entrega) - julianday(e.data_prevista)) AS dias_de_atraso
       FROM entregas e
       JOIN pedidos pe ON  pe.id = e.pedido_id
       JOIN clientes c ON  c.id = pe.cliente_id
       WHERE data_entrega > data_prevista
-    ORDER BY data_entrega DESC;
+    ORDER BY dias_de_atraso DESC, c.nome_cliente ASC;
     """
     ).fetchall()
 
@@ -77,6 +77,7 @@ try:
                 "Cliente": [row[1] for row in late_deliveries],
                 "Data Prevista": [row[2] for row in late_deliveries],
                 "Data de Entrega": [row[3] for row in late_deliveries],
+                "Atraso em Dias": [row[4] for row in late_deliveries],
             }
         ),
         "Faturamento por Estado": pd.DataFrame(
