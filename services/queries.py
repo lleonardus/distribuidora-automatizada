@@ -5,8 +5,15 @@ from sqlalchemy import Integer, cast, func
 from db.database import engine, Session
 from db.models import Client, Items_Order, Order, Product, Delivery
 
+from services.queries_models import (
+    Top5MonthProduct,
+    TopClient,
+    LateDelivery,
+    BillingByState,
+)
 
-def top5_month_products():
+
+def top5_month_products() -> list[Top5MonthProduct]:
     current_month = date.today().month
 
     with Session() as session:
@@ -21,12 +28,12 @@ def top5_month_products():
         ).all()
 
         return [
-            {"product_name": product[0], "total_sold": product[1]}
+            Top5MonthProduct(product_name=product[0], total_sold=product[1])
             for product in products
         ]
 
 
-def top_clients():
+def top_clients() -> list[TopClient]:
     with Session() as session:
         clients = (
             session.query(Client.name, func.round(func.sum(Order.total_value), 2))
@@ -36,11 +43,12 @@ def top_clients():
         ).all()
 
         return [
-            {"client_name": client[0], "total_expense": client[1]} for client in clients
+            TopClient(client_name=client[0], total_expense=client[1])
+            for client in clients
         ]
 
 
-def late_deliveries():
+def late_deliveries() -> list[LateDelivery]:
     # SQLite não entende bem o tipo Date
 
     is_sqlite = engine.dialect.name == "sqlite"
@@ -76,18 +84,18 @@ def late_deliveries():
         )
 
         return [
-            {
-                "delivery_id": delivery[0],
-                "client_name": delivery[1],
-                "expected_date": delivery[2],
-                "delivery_date": delivery[3],
-                "days_late": delivery[4],
-            }
+            LateDelivery(
+                delivery_id=delivery[0],
+                client_name=delivery[1],
+                expected_date=delivery[2],
+                delivery_date=delivery[3],
+                days_late=delivery[4],
+            )
             for delivery in deliveries
         ]
 
 
-def billing_by_state():
+def billing_by_state() -> list[BillingByState]:
     with Session() as session:
         billings = (
             session.query(Client.state, func.round(func.sum(Order.total_value), 2))
@@ -97,5 +105,6 @@ def billing_by_state():
         ).all()
 
         return [
-            {"state": billing[0], "total_value": billing[1]} for billing in billings
+            BillingByState(state=billing[0], total_value=billing[1])
+            for billing in billings
         ]
