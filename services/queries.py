@@ -7,21 +7,16 @@ from utils.utils import get_month
 from db.database import engine, Session
 from db.models import Client, Items_Order, Order, Product, Delivery
 
-from services.queries_models import (
-    Top5MonthProduct,
-    TopClient,
-    LateDelivery,
-    BillingByState,
-    SalesHistory,
-)
 
-
-def top5_month_products() -> list[Top5MonthProduct]:
+def top5_month_products():
     current_month = date.today().month
 
     with Session() as session:
-        products = (
-            session.query(Product.name, func.sum(Items_Order.quantity))
+        return (
+            session.query(
+                Product.name.label("Produtos"),
+                func.sum(Items_Order.quantity).label("Total Vendido"),
+            )
             .join(Items_Order, Items_Order.product_id == Product.id)
             .join(Order, Order.id == Items_Order.order_id)
             .filter(func.extract("month", Order.order_date) == current_month)
@@ -30,28 +25,21 @@ def top5_month_products() -> list[Top5MonthProduct]:
             .limit(5)
         ).all()
 
-        return [
-            Top5MonthProduct(product_name=product[0], total_sold=product[1])
-            for product in products
-        ]
 
-
-def top_clients() -> list[TopClient]:
+def top_clients():
     with Session() as session:
-        clients = (
-            session.query(Client.name, func.round(func.sum(Order.total_value), 2))
+        return (
+            session.query(
+                Client.name.label("Cliente"),
+                func.round(func.sum(Order.total_value), 2).label("Total Gasto"),
+            )
             .join(Order, Order.client_id == Client.id)
             .group_by(Client.name)
             .order_by(func.sum(Order.total_value).desc(), Client.name.asc())
         ).all()
 
-        return [
-            TopClient(client_name=client[0], total_expense=client[1])
-            for client in clients
-        ]
 
-
-def late_deliveries() -> list[LateDelivery]:
+def late_deliveries():
     # SQLite não entende bem o tipo Date
 
     is_sqlite = engine.dialect.name == "sqlite"
@@ -65,13 +53,13 @@ def late_deliveries() -> list[LateDelivery]:
         days_late = cast(Delivery.delivery_date - Delivery.expected_date, Integer)
 
     with Session() as session:
-        deliveries = (
+        return (
             session.query(
-                Delivery.id,
-                Client.name,
-                Delivery.expected_date,
-                Delivery.delivery_date,
-                days_late,
+                Delivery.id.label("Entrega Id"),
+                Client.name.label("Cliente"),
+                Delivery.expected_date.label("Data Prevista"),
+                Delivery.delivery_date.label("Data de Entrega"),
+                days_late.label("Atraso em Dias"),
             )
             .join(Order, Order.id == Delivery.order_id)
             .join(Client, Client.id == Order.client_id)
@@ -83,50 +71,37 @@ def late_deliveries() -> list[LateDelivery]:
             .all()
         )
 
-        return [
-            LateDelivery(
-                delivery_id=delivery[0],
-                client_name=delivery[1],
-                expected_date=delivery[2],
-                delivery_date=delivery[3],
-                days_late=delivery[4],
-            )
-            for delivery in deliveries
-        ]
 
-
-def billing_by_state() -> list[BillingByState]:
+def billing_by_state():
     with Session() as session:
-        billings = (
-            session.query(Client.state, func.round(func.sum(Order.total_value), 2))
+        return (
+            session.query(
+                Client.state.label("Estado"),
+                func.round(func.sum(Order.total_value), 2).label("Faturamento"),
+            )
             .join(Order, Order.client_id == Client.id)
             .group_by(Client.state)
             .order_by(func.sum(Order.total_value).desc(), Client.state.asc())
         ).all()
 
-        return [
-            BillingByState(state=billing[0], total_value=billing[1])
-            for billing in billings
-        ]
 
-
-def sales_history() -> list[SalesHistory]:
+def sales_history():
     with Session() as session:
-        sales = (
+        return (
             session.query(
-                func.extract("year", Delivery.delivery_date),
+                func.extract("year", Delivery.delivery_date).label("Ano"),
                 case(
                     *[
                         (
-                            func.extract("month", Delivery.delivery_date) == month_num,
-                            month_name,
+                            func.extract("month", Delivery.delivery_date) == month_key,
+                            month_value,
                         )
-                        for month_num, month_name in get_month()
+                        for month_key, month_value in get_month()
                     ],
                     else_="Desconhecido"
-                ),
-                Product.name,
-                (Items_Order.quantity * Product.price),
+                ).label("Mês"),
+                Product.name.label("Produto"),
+                (Items_Order.quantity * Product.price).label("Faturamento"),
             )
             .join(Order, Order.id == Delivery.order_id)
             .join(Items_Order, Items_Order.order_id == Order.id)
@@ -138,10 +113,3 @@ def sales_history() -> list[SalesHistory]:
             )
             .all()
         )
-
-        return [
-            SalesHistory(
-                year=sale[0], month=sale[1], product_name=sale[2], total_value=sale[3]
-            )
-            for sale in sales
-        ]

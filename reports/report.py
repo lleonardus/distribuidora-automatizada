@@ -18,41 +18,11 @@ REPORT_PATH = os.getenv(key="REPORT_PATH", default="report.xlsx")
 
 def create_report():
     data_frames = {
-        "Top 5 Produtos do Mês": pd.DataFrame(
-            {
-                "Produtos": [row.product_name for row in top5_month_products()],
-                "Total Vendido": [row.total_sold for row in top5_month_products()],
-            }
-        ),
-        "Top Clientes": pd.DataFrame(
-            {
-                "Cliente": [row.client_name for row in top_clients()],
-                "Total Gasto": [row.total_expense for row in top_clients()],
-            }
-        ),
-        "Entregas Atrasadas": pd.DataFrame(
-            {
-                "Entrega Id": [row.delivery_id for row in late_deliveries()],
-                "Cliente": [row.client_name for row in late_deliveries()],
-                "Data Prevista": [row.expected_date for row in late_deliveries()],
-                "Data de Entrega": [row.delivery_date for row in late_deliveries()],
-                "Atraso em Dias": [row.days_late for row in late_deliveries()],
-            }
-        ),
-        "Faturamento por Estado": pd.DataFrame(
-            {
-                "Estado": [row.state for row in billing_by_state()],
-                "Faturamento": [row.total_value for row in billing_by_state()],
-            }
-        ),
-        "Histórico de Vendas": pd.DataFrame(
-            {
-                "Ano": [row.year for row in sales_history()],
-                "Mês": [row.month for row in sales_history()],
-                "Produto": [row.product_name for row in sales_history()],
-                "Faturamento": [row.total_value for row in sales_history()],
-            }
-        ),
+        "Top 5 Produtos do Mês": pd.DataFrame(top5_month_products()),
+        "Top Clientes": pd.DataFrame(top_clients()),
+        "Entregas Atrasadas": pd.DataFrame(late_deliveries()),
+        "Faturamento por Estado": pd.DataFrame(billing_by_state()),
+        "Histórico de Vendas": pd.DataFrame(sales_history()),
     }
 
     with pd.ExcelWriter(path=REPORT_PATH) as writer:
