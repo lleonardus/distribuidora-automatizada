@@ -83,8 +83,8 @@ with Session(engine) as session:
     for order in orders:
         expected_date = order.order_date + timedelta(days=random.randint(2, 10))
 
-        # Delays 20% of deliveries
-        if random.random() < 0.2:
+        # Delays 35% of deliveries
+        if random.random() < 0.35:
             delivery_date = expected_date + timedelta(days=random.randint(1, 5))
         else:
             delivery_date = expected_date
