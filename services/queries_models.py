@@ -33,3 +33,11 @@ class BillingByState:
     def __init__(self, state: str, total_value: float):
         self.state = state
         self.total_value = total_value
+
+
+class SalesHistory:
+    def __init__(self, year: int, month: str, product_name: str, total_value: float):
+        self.year = year
+        self.month = month
+        self.product_name = product_name
+        self.total_value = total_value

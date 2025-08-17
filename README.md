@@ -21,11 +21,11 @@ apenas informações relevantes para posterior análise de dados.
 
 ```sql
 SELECT pr.nome_produto, SUM(i.quantidade) AS total_vendido
-  FROM produtos pr
-  JOIN itens_pedido i ON pr.id=i.produto_id
-  JOIN pedidos pe ON i.pedido_id=pe.id
-  WHERE strftime('%m', pe.data_pedido) = strftime('%m', date())
-  GROUP BY pr.nome_produto
+FROM produtos pr
+JOIN itens_pedido i ON pr.id=i.produto_id
+JOIN pedidos pe ON i.pedido_id=pe.id
+WHERE strftime('%m', pe.data_pedido) = strftime('%m', date())
+GROUP BY pr.nome_produto
 ORDER BY total_vendido DESC, pr.nome_produto ASC LIMIT(5);
 ```
 
@@ -33,32 +33,51 @@ ORDER BY total_vendido DESC, pr.nome_produto ASC LIMIT(5);
 
 ```sql
 SELECT c.nome_cliente, SUM(pe.valor_total) AS total_gasto
-    FROM clientes c
-    JOIN pedidos pe ON pe.cliente_id = c.id
-    GROUP BY c.nome_cliente
+FROM clientes c
+JOIN pedidos pe ON pe.cliente_id = c.id
+GROUP BY c.nome_cliente
 ORDER BY total_gasto DESC, c.nome_cliente ASC;
 ```
 
 #### 🔎 Entregas Atrasadas
 
 ```sql
-SELECT e.id, c.nome_cliente, e.data_prevista, e.data_entrega, (julianday(e.data_entrega) - julianday(e.data_prevista)) AS dias_de_atraso
-  FROM entregas e
-  JOIN pedidos pe ON  pe.id = e.pedido_id
-  JOIN clientes c ON  c.id = pe.cliente_id
-  WHERE data_entrega > data_prevista
+SELECT
+    e.id,
+    c.nome_cliente,
+    e.data_prevista,
+    e.data_entrega,
+    (julianday(e.data_entrega) - julianday(e.data_prevista)) AS dias_de_atraso
+FROM entregas e
+JOIN pedidos pe ON  pe.id = e.pedido_id
+JOIN clientes c ON  c.id = pe.cliente_id
+WHERE data_entrega > data_prevista
 ORDER BY dias_de_atraso DESC, c.nome_cliente ASC;
-
 ```
 
 #### 🔎 Faturamento por Estado
 
 ```sql
 SELECT c.estado, SUM(pe.valor_total) AS faturamento
-    FROM clientes c
-    JOIN pedidos pe ON c.id=pe.cliente_id
-    GROUP BY c.estado
+FROM clientes c
+JOIN pedidos pe ON c.id=pe.cliente_id
+GROUP BY c.estado
 ORDER BY faturamento DESC;
+```
+
+#### 🔎 Histórico de Vendas
+
+```sql
+SELECT
+    strftime('%Y',e.data_entrega) AS year,
+    strftime('%m', e.data_entrega) AS month,
+    p.nome_produto AS product_name,
+    (ip.quantidade * p.preco_unitario) AS total_value
+FROM entregas e
+JOIN pedidos pe ON pe.id = e.pedido_id
+JOIN itens_pedido ip ON (ip.pedido_id= pe.id)
+JOIN produtos p ON p.id = ip.produto_id
+GROUP BY year, month, product_name;
 ```
 
 ## 💿 Como rodar na sua máquina (Linux)

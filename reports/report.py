@@ -8,6 +8,7 @@ from services.queries import (
     late_deliveries,
     top5_month_products,
     top_clients,
+    sales_history,
 )
 
 load_dotenv()
@@ -42,6 +43,14 @@ def create_report():
             {
                 "Estado": [row.state for row in billing_by_state()],
                 "Faturamento": [row.total_value for row in billing_by_state()],
+            }
+        ),
+        "Histórico de Vendas": pd.DataFrame(
+            {
+                "Ano": [row.year for row in sales_history()],
+                "Mês": [row.month for row in sales_history()],
+                "Produto": [row.product_name for row in sales_history()],
+                "Faturamento": [row.total_value for row in sales_history()],
             }
         ),
     }
