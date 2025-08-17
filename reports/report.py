@@ -19,29 +19,29 @@ def create_report():
     data_frames = {
         "Top 5 Produtos do Mês": pd.DataFrame(
             {
-                "Produtos": [row[0] for row in top5_month_products()],
-                "Total Vendido": [row[1] for row in top5_month_products()],
+                "Produtos": [row["product_name"] for row in top5_month_products()],
+                "Total Vendido": [row["total_sold"] for row in top5_month_products()],
             }
         ),
         "Top Clientes": pd.DataFrame(
             {
-                "Cliente": [row[0] for row in top_clients()],
-                "Total Gasto": [row[1] for row in top_clients()],
+                "Cliente": [row["client_name"] for row in top_clients()],
+                "Total Gasto": [row["total_expense"] for row in top_clients()],
             }
         ),
         "Entregas Atrasadas": pd.DataFrame(
             {
-                "Entrega Id": [row[0] for row in late_deliveries()],
-                "Cliente": [row[1] for row in late_deliveries()],
-                "Data Prevista": [row[2] for row in late_deliveries()],
-                "Data de Entrega": [row[3] for row in late_deliveries()],
-                "Atraso em Dias": [row[4] for row in late_deliveries()],
+                "Entrega Id": [row["delivery_id"] for row in late_deliveries()],
+                "Cliente": [row["client_name"] for row in late_deliveries()],
+                "Data Prevista": [row["expected_date"] for row in late_deliveries()],
+                "Data de Entrega": [row["delivery_date"] for row in late_deliveries()],
+                "Atraso em Dias": [row["days_late"] for row in late_deliveries()],
             }
         ),
         "Faturamento por Estado": pd.DataFrame(
             {
-                "Estado": [row[0] for row in billing_by_state()],
-                "Faturamento": [row[1] for row in billing_by_state()],
+                "Estado": [row["state"] for row in billing_by_state()],
+                "Faturamento": [row["total_value"] for row in billing_by_state()],
             }
         ),
     }

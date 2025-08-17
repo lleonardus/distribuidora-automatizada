@@ -10,7 +10,7 @@ def top5_month_products():
     current_month = date.today().month
 
     with Session() as session:
-        return (
+        products = (
             session.query(Product.name, func.sum(Items_Order.quantity))
             .join(Items_Order, Items_Order.product_id == Product.id)
             .join(Order, Order.id == Items_Order.order_id)
@@ -20,15 +20,24 @@ def top5_month_products():
             .limit(5)
         ).all()
 
+        return [
+            {"product_name": product[0], "total_sold": product[1]}
+            for product in products
+        ]
+
 
 def top_clients():
     with Session() as session:
-        return (
+        clients = (
             session.query(Client.name, func.round(func.sum(Order.total_value), 2))
             .join(Order, Order.client_id == Client.id)
             .group_by(Client.name)
             .order_by(func.sum(Order.total_value).desc(), Client.name.asc())
         ).all()
+
+        return [
+            {"client_name": client[0], "total_expense": client[1]} for client in clients
+        ]
 
 
 def late_deliveries():
@@ -48,7 +57,7 @@ def late_deliveries():
         ).label("days_late")
 
     with Session() as session:
-        return (
+        deliveries = (
             session.query(
                 Delivery.id,
                 Client.name,
@@ -66,12 +75,27 @@ def late_deliveries():
             .all()
         )
 
+        return [
+            {
+                "delivery_id": delivery[0],
+                "client_name": delivery[1],
+                "expected_date": delivery[2],
+                "delivery_date": delivery[3],
+                "days_late": delivery[4],
+            }
+            for delivery in deliveries
+        ]
+
 
 def billing_by_state():
     with Session() as session:
-        return (
+        billings = (
             session.query(Client.state, func.round(func.sum(Order.total_value), 2))
             .join(Order, Order.client_id == Client.id)
             .group_by(Client.state)
             .order_by(func.sum(Order.total_value).desc(), Client.state.asc())
         ).all()
+
+        return [
+            {"state": billing[0], "total_value": billing[1]} for billing in billings
+        ]
