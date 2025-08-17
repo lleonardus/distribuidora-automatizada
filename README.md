@@ -15,11 +15,6 @@ apenas informações relevantes para posterior análise de dados.
 
 ![Modelo Entidade Relacionamento para o Banco](./docs/images/database.png)
 
-Como o projeto é para fins didáticos, optei por utilizar o [sqlite](https://sqlite.org/)
-como banco de dados pois o Python já vem com o driver [sqlite3](https://docs.python.org/3/library/sqlite3.html#module-sqlite3).
-Essa escolha também auxilia na hora de rodar o projeto, já que elimina a
-necessidade de instalar um SGBD.
-
 ### 📒 Consultas
 
 #### 🔎 Top 5 produtos mais vendidos no mês
@@ -84,16 +79,19 @@ $ python3 -m venv .venv
 $ source .venv/bin/activate
 $ python3 -m pip install -r requirements.txt
 
-# Definindo as variáveis de ambiente DATABASE e REPORT_PATH
-$ echo -e 'DATABASE=distribuidora.db\nREPORT_PATH=relatorio.xlsx' > .env
+# Definindo as variáveis de ambiente DATABASE e REPORT_PATH.
+# Se quiser usar um banco diferente do sqlite, mude a variável DATABASE.
+# REPORT_PATH é o local onde será gerado o relatório. Com o valor abaixo,
+# ele será gerado na raiz do projeto com o nome de relatorio.xlsx
+$ echo -e 'DATABASE=sqlite:///distribuidora.db\nREPORT_PATH=relatorio.xlsx' > .env
 
 # Criando as tabelas e inserindo dados fictícios.
 # Se as tabelas já existirem e estiverem com dados, não precisa seguir esse passo
-$ python3 create_tables.py
-$ python3 insert_data.py
+$ python3 -m db.init_db
+$ python3 -m db.insert_data
 
 # Gerando relatório
-$ python3 generate_report.py
+$ python3 main.py
 ```
 
 ## 🧰 Ferramentas Utilizadas
@@ -101,6 +99,6 @@ $ python3 generate_report.py
 - [Git](https://git-scm.com/downloads)
 - [pandas](https://pandas.pydata.org/docs/getting_started/install.html)
 - [Python](https://www.python.org/downloads/)
-- [sqlite3](https://docs.python.org/3/library/sqlite3.html#module-sqlite3)
+- [SQLAlchemy](https://docs.sqlalchemy.org/en/20/intro.html#installation)
 - [python-dotenv](https://pypi.org/project/python-dotenv/)
 - [Faker](https://pypi.org/project/Faker/)
