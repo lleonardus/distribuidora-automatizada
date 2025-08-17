@@ -57,7 +57,7 @@ with Session(engine) as session:
 
     for _ in range(200):
         client = random.choice(clients)
-        order_date = fake.date_between(start_date="-6M", end_date="today")
+        order_date = fake.date_between(start_date="-24M", end_date="today")
 
         order = Order(client=client, order_date=order_date, total_value=0.0)
         session.add(order)
