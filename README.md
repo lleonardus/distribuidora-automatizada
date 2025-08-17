@@ -20,64 +20,94 @@ apenas informações relevantes para posterior análise de dados.
 #### 🔎 Top 5 produtos mais vendidos no mês
 
 ```sql
-SELECT pr.nome_produto, SUM(i.quantidade) AS total_vendido
-FROM produtos pr
-JOIN itens_pedido i ON pr.id=i.produto_id
-JOIN pedidos pe ON i.pedido_id=pe.id
-WHERE strftime('%m', pe.data_pedido) = strftime('%m', date())
-GROUP BY pr.nome_produto
-ORDER BY total_vendido DESC, pr.nome_produto ASC LIMIT(5);
+SELECT
+    p.nome_produto AS "Produto",
+    SUM(i.quantidade) AS "Total Vendido"
+FROM produtos p
+JOIN itens_pedido i ON i.produto_id = p.id
+JOIN pedidos pe ON pe.id = i.pedido_id
+WHERE strftime('%Y', pe.data_pedido) = strftime('%Y', 'now')
+  AND strftime('%m', pe.data_pedido) = strftime('%m', 'now')
+GROUP BY p.nome_produto
+ORDER BY SUM(i.quantidade) DESC, p.nome_produto ASC
+LIMIT 5;
 ```
 
 #### 🔎 Clientes que mais compraram
 
 ```sql
-SELECT c.nome_cliente, SUM(pe.valor_total) AS total_gasto
+SELECT
+    c.nome_cliente AS "Cliente",
+    ROUND(SUM(pe.valor_total), 2) AS "Total Gasto"
 FROM clientes c
 JOIN pedidos pe ON pe.cliente_id = c.id
 GROUP BY c.nome_cliente
-ORDER BY total_gasto DESC, c.nome_cliente ASC;
+ORDER BY SUM(pe.valor_total) DESC, c.nome_cliente ASC;
 ```
 
 #### 🔎 Entregas Atrasadas
 
 ```sql
 SELECT
-    e.id,
-    c.nome_cliente,
-    e.data_prevista,
-    e.data_entrega,
-    (julianday(e.data_entrega) - julianday(e.data_prevista)) AS dias_de_atraso
+    e.id AS "Entrega Id",
+    c.nome_cliente AS "Cliente",
+    e.data_prevista AS "Data Prevista",
+    e.data_entrega AS "Data de Entrega",
+    ROUND(julianday(e.data_entrega) - julianday(e.data_prevista)) AS "Atraso em Dias"
 FROM entregas e
-JOIN pedidos pe ON  pe.id = e.pedido_id
-JOIN clientes c ON  c.id = pe.cliente_id
-WHERE data_entrega > data_prevista
-ORDER BY dias_de_atraso DESC, c.nome_cliente ASC;
+JOIN pedidos pe ON pe.id = e.pedido_id
+JOIN clientes c ON c.id = pe.cliente_id
+WHERE e.data_entrega > e.data_prevista
+ORDER BY pe.data_pedido DESC,
+         (julianday(e.data_entrega) - julianday(e.data_prevista)) DESC,
+         c.nome_cliente ASC;
 ```
 
 #### 🔎 Faturamento por Estado
 
 ```sql
-SELECT c.estado, SUM(pe.valor_total) AS faturamento
+SELECT
+    strftime('%Y', pe.data_pedido) AS "Ano",
+    c.estado AS "Estado",
+    ROUND(SUM(pe.valor_total), 2) AS "Faturamento"
 FROM clientes c
-JOIN pedidos pe ON c.id=pe.cliente_id
-GROUP BY c.estado
-ORDER BY faturamento DESC;
+JOIN pedidos pe ON pe.cliente_id = c.id
+GROUP BY c.estado, strftime('%Y', pe.data_pedido)
+ORDER BY strftime('%Y', pe.data_pedido),
+         SUM(pe.valor_total) DESC,
+         c.estado ASC;
 ```
 
 #### 🔎 Histórico de Vendas
 
 ```sql
 SELECT
-    strftime('%Y',e.data_entrega) AS year,
-    strftime('%m', e.data_entrega) AS month,
-    p.nome_produto AS product_name,
-    (ip.quantidade * p.preco_unitario) AS total_value
+    strftime('%Y', e.data_entrega) AS "Ano",
+    CASE strftime('%m', e.data_entrega)
+        WHEN '01' THEN 'Janeiro'
+        WHEN '02' THEN 'Fevereiro'
+        WHEN '03' THEN 'Março'
+        WHEN '04' THEN 'Abril'
+        WHEN '05' THEN 'Maio'
+        WHEN '06' THEN 'Junho'
+        WHEN '07' THEN 'Julho'
+        WHEN '08' THEN 'Agosto'
+        WHEN '09' THEN 'Setembro'
+        WHEN '10' THEN 'Outubro'
+        WHEN '11' THEN 'Novembro'
+        WHEN '12' THEN 'Dezembro'
+        ELSE 'Desconhecido'
+    END AS "Mês",
+    p.nome_produto AS "Produto",
+    ROUND(SUM(i.quantidade * p.preco_unitario), 2) AS "Faturamento"
 FROM entregas e
 JOIN pedidos pe ON pe.id = e.pedido_id
-JOIN itens_pedido ip ON (ip.pedido_id= pe.id)
-JOIN produtos p ON p.id = ip.produto_id
-GROUP BY year, month, product_name;
+JOIN itens_pedido i ON i.pedido_id = pe.id
+JOIN produtos p ON p.id = i.produto_id
+GROUP BY strftime('%Y', e.data_entrega), strftime('%m', e.data_entrega), p.nome_produto
+ORDER BY strftime('%Y', e.data_entrega),
+         strftime('%m', e.data_entrega),
+         p.nome_produto;
 ```
 
 ## 💿 Como rodar na sua máquina (Linux)

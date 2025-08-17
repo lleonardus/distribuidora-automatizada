@@ -9,6 +9,7 @@ from db.models import Client, Items_Order, Order, Product, Delivery
 
 
 def top5_month_products():
+    current_year = date.today().year
     current_month = date.today().month
 
     with Session() as session:
@@ -19,7 +20,10 @@ def top5_month_products():
             )
             .join(Items_Order, Items_Order.product_id == Product.id)
             .join(Order, Order.id == Items_Order.order_id)
-            .filter(func.extract("month", Order.order_date) == current_month)
+            .filter(
+                (func.extract("year", Order.order_date) == current_year),
+                (func.extract("month", Order.order_date) == current_month),
+            )
             .group_by(Product.name)
             .order_by(func.sum(Items_Order.quantity).desc(), Product.name.asc())
             .limit(5)
@@ -65,6 +69,7 @@ def late_deliveries():
             .join(Client, Client.id == Order.client_id)
             .filter(Delivery.delivery_date > Delivery.expected_date)
             .order_by(
+                Order.order_date.desc(),
                 days_late.desc(),
                 Client.name.asc(),
             )
@@ -76,12 +81,17 @@ def billing_by_state():
     with Session() as session:
         return (
             session.query(
+                func.extract("year", Order.order_date).label("Ano"),
                 Client.state.label("Estado"),
                 func.round(func.sum(Order.total_value), 2).label("Faturamento"),
             )
             .join(Order, Order.client_id == Client.id)
-            .group_by(Client.state)
-            .order_by(func.sum(Order.total_value).desc(), Client.state.asc())
+            .group_by(Client.state, func.extract("year", Order.order_date))
+            .order_by(
+                func.extract("year", Order.order_date),
+                func.sum(Order.total_value).desc(),
+                Client.state.asc(),
+            )
         ).all()
 
 
@@ -101,7 +111,9 @@ def sales_history():
                     else_="Desconhecido"
                 ).label("Mês"),
                 Product.name.label("Produto"),
-                (Items_Order.quantity * Product.price).label("Faturamento"),
+                func.round(func.sum(Items_Order.quantity * Product.price), 2).label(
+                    "Faturamento"
+                ),
             )
             .join(Order, Order.id == Delivery.order_id)
             .join(Items_Order, Items_Order.order_id == Order.id)
