@@ -9,8 +9,6 @@ Pensando nisso, desenvolvi este projeto para simular o fluxo de compras de clien
 em uma distribuidora e realizar consultas em SQL, gerando um relatório contendo
 apenas informações relevantes para posterior análise de dados.
 
-![Exemplo de Output do Relatório](./docs/images/excel-output.png)
-
 ## 💾 Banco de Dados
 
 ![Modelo Entidade Relacionamento para o Banco](./docs/images/database.png)
@@ -31,51 +29,6 @@ WHERE strftime('%Y', pe.data_pedido) = strftime('%Y', 'now')
 GROUP BY p.nome_produto
 ORDER BY SUM(i.quantidade) DESC, p.nome_produto ASC
 LIMIT 5;
-```
-
-#### 🔎 Clientes que mais compraram
-
-```sql
-SELECT
-    c.nome_cliente AS "Cliente",
-    ROUND(SUM(pe.valor_total), 2) AS "Total Gasto"
-FROM clientes c
-JOIN pedidos pe ON pe.cliente_id = c.id
-GROUP BY c.nome_cliente
-ORDER BY SUM(pe.valor_total) DESC, c.nome_cliente ASC;
-```
-
-#### 🔎 Entregas Atrasadas
-
-```sql
-SELECT
-    e.id AS "Entrega Id",
-    c.nome_cliente AS "Cliente",
-    e.data_prevista AS "Data Prevista",
-    e.data_entrega AS "Data de Entrega",
-    ROUND(julianday(e.data_entrega) - julianday(e.data_prevista)) AS "Atraso em Dias"
-FROM entregas e
-JOIN pedidos pe ON pe.id = e.pedido_id
-JOIN clientes c ON c.id = pe.cliente_id
-WHERE e.data_entrega > e.data_prevista
-ORDER BY pe.data_pedido DESC,
-         (julianday(e.data_entrega) - julianday(e.data_prevista)) DESC,
-         c.nome_cliente ASC;
-```
-
-#### 🔎 Faturamento por Estado
-
-```sql
-SELECT
-    strftime('%Y', pe.data_pedido) AS "Ano",
-    c.estado AS "Estado",
-    ROUND(SUM(pe.valor_total), 2) AS "Faturamento"
-FROM clientes c
-JOIN pedidos pe ON pe.cliente_id = c.id
-GROUP BY c.estado, strftime('%Y', pe.data_pedido)
-ORDER BY strftime('%Y', pe.data_pedido),
-         SUM(pe.valor_total) DESC,
-         c.estado ASC;
 ```
 
 #### 🔎 Histórico de Vendas
@@ -109,6 +62,61 @@ ORDER BY strftime('%Y', e.data_entrega),
          strftime('%m', e.data_entrega),
          p.nome_produto;
 ```
+
+#### 🔎 Faturamento por Estado
+
+```sql
+SELECT
+    strftime('%Y', pe.data_pedido) AS "Ano",
+    c.estado AS "Estado",
+    ROUND(SUM(pe.valor_total), 2) AS "Faturamento"
+FROM clientes c
+JOIN pedidos pe ON pe.cliente_id = c.id
+GROUP BY c.estado, strftime('%Y', pe.data_pedido)
+ORDER BY strftime('%Y', pe.data_pedido),
+         SUM(pe.valor_total) DESC,
+         c.estado ASC;
+```
+
+#### 🔎 Top Clientes
+
+```sql
+SELECT
+    c.nome_cliente AS "Cliente",
+    ROUND(SUM(pe.valor_total), 2) AS "Total Gasto"
+FROM clientes c
+JOIN pedidos pe ON pe.cliente_id = c.id
+GROUP BY c.nome_cliente
+ORDER BY SUM(pe.valor_total) DESC, c.nome_cliente ASC;
+```
+
+#### 🔎 Entregas Atrasadas
+
+```sql
+SELECT
+    e.id AS "Entrega Id",
+    c.nome_cliente AS "Cliente",
+    e.data_prevista AS "Data Prevista",
+    e.data_entrega AS "Data de Entrega",
+    ROUND(julianday(e.data_entrega) - julianday(e.data_prevista)) AS "Atraso em Dias"
+FROM entregas e
+JOIN pedidos pe ON pe.id = e.pedido_id
+JOIN clientes c ON c.id = pe.cliente_id
+WHERE e.data_entrega > e.data_prevista
+ORDER BY pe.data_pedido DESC,
+         (julianday(e.data_entrega) - julianday(e.data_prevista)) DESC,
+         c.nome_cliente ASC;
+```
+
+## 👨‍💻 Exemplo de Manipulação de Dados
+
+Após abrir o relatório no Excel, os dados vêm apresentados de forma simples
+mas é possível fazer manipulações bem interessantes com eles. Nesse exemplo,
+gero uma tabela dinâmica a partir do Histórico de Vendas e consigo visualizar o
+faturamento em cada ano, além do faturamento geral.
+
+![Exemplo de Output do Relatório](./docs/images/excel-output.png)
+![Tabela Dinâmica](./docs/images/pivot-table.png)
 
 ## 💿 Como rodar na sua máquina (Linux)
 
